@@ -1,0 +1,29 @@
+FROM composer:1.10.10 as composer
+
+WORKDIR /usr/src/php-pcap-ffi
+
+COPY composer.* /usr/src/php-pcap-ffi/
+
+RUN apk add libffi libffi-dev && \
+  docker-php-ext-install ffi && \
+  composer install --no-scripts --no-suggest --no-interaction --prefer-dist --optimize-autoloader
+
+COPY . /usr/src/php-pcap-ffi
+
+RUN composer dump-autoload --optimize --classmap-authoritative
+
+FROM php:7.4-cli-buster
+
+RUN apt-get update && \
+  apt-get install -y inetutils-ping dnsutils libffi-dev libpcap-dev && \
+  docker-php-ext-install ffi sockets
+
+WORKDIR /usr/src/php-pcap-ffi
+
+COPY . /usr/src/php-pcap-ffi
+
+COPY --from=composer /usr/src/php-pcap-ffi/vendor /usr/src/php-pcap-ffi/vendor
+
+ENV LIBPCAP_NAME=libpcap.so.1.8.1
+
+CMD ["php", "-i"]

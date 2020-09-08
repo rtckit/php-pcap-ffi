@@ -11,6 +11,8 @@ use FFI\CData;
  */
 class StreamWrapper
 {
+    public const MIN_LIBPCAP_VERSION = '1.8.0';
+
     private PcapFFI $pcapFFI;
 
     private string $dev = '';
@@ -48,6 +50,17 @@ class StreamWrapper
     public function __construct()
     {
         $this->pcapFFI = new PcapFFI();
+        $version = $this->pcapFFI->lib_version();
+
+        if (preg_match('/libpcap version ([\d\.]+)(.*)/', $version, $matches) === 1) {
+            if (!version_compare($matches[1], self::MIN_LIBPCAP_VERSION, '>=')) {
+                $this->fail('Please upgrade libpcap to a higher version (>= ' . self::MIN_LIBPCAP_VERSION . ')');
+
+                return false;
+            }
+        } else {
+            $this->fail('Cannot reliably determine libpcap version');
+        }
     }
 
     private function closeSession(): void
@@ -138,6 +151,21 @@ class StreamWrapper
         $this->pcap = $pcap;
 
         return $this->pcap;
+    }
+
+    public function stream_write(string $data): int
+    {
+        if (is_null($this->pcap) && is_null($this->activateSession())) {
+            return -1;
+        }
+
+        $ret = $this->pcapFFI->inject($this->pcap, $data);
+
+        if ($ret < 0) {
+            $this->fail("Cannot write to device {$this->dev}: " . $this->pcapFFI->getLastError());
+        }
+
+        return $ret;
     }
 
     public function stream_read(int $count): string

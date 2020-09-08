@@ -6,12 +6,14 @@ namespace RTCKit\Pcap\Stream\FFI;
 
 use FFI;
 use FFI\CData;
+use FFI\Exception;
 
 /**
  * FFI/libpcap class
  */
 class PcapFFI
 {
+    public const LIBPCAP_NAME = 'libpcap.so.1';
 
     private FFI $ffi;
 
@@ -19,7 +21,20 @@ class PcapFFI
 
     public function __construct()
     {
-        $this->ffi = FFI::load(__DIR__ . '/pcap.h');
+        $env = getenv('LIBPCAP_NAME');
+        $lib = ($env !== false) ? $env : self::LIBPCAP_NAME;
+        $code = file_get_contents(__DIR__ . '/pcap.h');
+
+        if ($code === false) {
+            throw new Exception('Cannot load pcap C definitions');
+        }
+
+        $this->ffi = FFI::cdef($code, $lib);
+    }
+
+    public function lib_version(): string
+    {
+        return $this->ffi->pcap_lib_version();
     }
 
     /**
@@ -156,6 +171,11 @@ class PcapFFI
     public function get_selectable_fd(CData $pcap): int
     {
         return $this->ffi->pcap_get_selectable_fd($pcap);
+    }
+
+    public function inject(CData $pcap, string $data): int
+    {
+        return $this->ffi->pcap_inject($pcap, $data, strlen($data));
     }
 
     public function next_ex(CData $pcap): string

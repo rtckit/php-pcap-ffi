@@ -1,8 +1,3 @@
-#define FFI_SCOPE "PCAP"
-#define FFI_LIB "libpcap.so.1"
-
-#define PCAP_ERRBUF_SIZE 256
-
 typedef unsigned long int time_t;
 typedef unsigned long int suseconds_t;
 
@@ -144,6 +139,7 @@ typedef struct pcap {
     cleanup_op_t cleanup_op;
 };
 
+const char *pcap_lib_version(void);
 int pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf);
 void pcap_freealldevs(pcap_if_t *alldevs);
 pcap_t *pcap_create(const char *source, char *errbuf);
@@ -155,6 +151,7 @@ int pcap_set_timeout(pcap_t *p, int to_ms);
 int pcap_setnonblock(pcap_t *p, int nonblock, char *errbuf);
 int pcap_activate(pcap_t *p);
 int pcap_get_selectable_fd(pcap_t *p);
+int pcap_inject(pcap_t *p, const void *buf, size_t size);
 int pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header, const u_char **pkt_data);
 int pcap_compile(pcap_t *p, struct bpf_program *fp, const char *str, int optimize, bpf_u_int32 netmask);
 int pcap_setfilter(pcap_t *p, struct bpf_program *fp);

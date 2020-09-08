@@ -5,3 +5,4 @@ script:
   - make stan
   - make psalm
   - make test
+  - make buster-test

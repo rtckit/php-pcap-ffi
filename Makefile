@@ -6,9 +6,6 @@ RUN_PHP_CMD=${RUN_CMD} php -d memory_limit=-1
 image:
 	docker build -t ${REPOSITORY} .
 
-run: image
-	${RUN_CMD}
-
 test: image
 	${RUN_PHP_CMD} -d memory_limit=-1 ./vendor/bin/phpunit --debug
 
@@ -22,7 +19,11 @@ stan: image
 psalm: image
 	${RUN_PHP_CMD} ./vendor/bin/psalm --show-info=true
 
-check: stan psalm
+buster:
+	docker build -t ${REPOSITORY}:buster -f Dockerfile.buster .
+
+buster-test: buster
+	${RUN_CMD}:buster php -d memory_limit=-1 -d memory_limit=-1 ./vendor/bin/phpunit --debug
 
 clean:
 	rm -rf `cat .gitignore`
