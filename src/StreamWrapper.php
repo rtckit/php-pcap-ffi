@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace RTCKit\Pcap\Stream\FFI;
 
 use FFI\CData;
@@ -9,17 +11,29 @@ use FFI\CData;
  */
 class StreamWrapper
 {
-    private static ?PcapFFI $pcapFFI = null;
+    private PcapFFI $pcapFFI;
 
-    private ?string $dev = null;
+    private string $dev = '';
 
-    private ?string $mode = null;
+    private string $mode = '';
 
-    private ?int $fd = null;
+    /**
+     * Resource handle, useful for stream multiplexing operations.
+     * Note the property is not typed, here's why
+     * - https://wiki.php.net/rfc/resource_typehint
+     * - https://bugs.php.net/bug.php?id=71518
+     *
+     * @var ?resource
+     */
     private $fp = null;
 
     private string $buffer = '';
 
+    /**
+     * Various libpcap properties, set at session level.
+     *
+     * @var array<mixed>
+     */
     private array $options = [
         'snaplen' => 65536,
         'promisc' => 0,
@@ -31,17 +45,26 @@ class StreamWrapper
 
     private ?CData $pcap = null;
 
-    private function closeSession(): void {
+    public function __construct()
+    {
+        $this->pcapFFI = new PcapFFI();
+    }
+
+    private function closeSession(): void
+    {
         if (!is_null($this->pcap)) {
-            self::$pcapFFI->close($this->pcap);
+            $this->pcapFFI->close($this->pcap);
+            $this->pcap = null;
         }
 
         if (!is_null($this->fp)) {
             fclose($this->fp);
+            $this->fp = null;
         }
     }
 
-    private function activateSession(): ?CData {
+    private function activateSession(): ?CData
+    {
         if (isset($this->context)) {
             $context = stream_context_get_options($this->context);
 
@@ -72,44 +95,44 @@ class StreamWrapper
             }
         }
 
-        $pcap = self::$pcapFFI->create($this->dev);
+        $pcap = $this->pcapFFI->create($this->dev);
 
         if (is_null($pcap)) {
-            $this->fail("Cannot initiate capture on device {$this->dev}:" . self::$pcapFFI->getLastError());
+            $this->fail("Cannot initiate capture on device {$this->dev}:" . $this->pcapFFI->getLastError());
             $this->closeSession();
 
             return null;
         }
 
-        if (self::$pcapFFI->set_snaplen($pcap, $this->options['snaplen']) < 0) {
+        if ($this->pcapFFI->set_snaplen($pcap, $this->options['snaplen']) < 0) {
             $this->fail("Cannot set snapshot length {$this->options['snaplen']} on device {$this->dev}");
         }
 
-        if ($this->options['promisc'] && (self::$pcapFFI->set_promisc($pcap, $this->options['promisc']) < 0)) {
+        if ($this->options['promisc'] && ($this->pcapFFI->set_promisc($pcap, $this->options['promisc']) < 0)) {
             $this->fail("Cannot set promiscuous mode {$this->options['promisc']} on device {$this->dev}");
         }
 
-        if ($this->options['immediate'] && (self::$pcapFFI->set_immediate_mode($pcap, $this->options['immediate']) < 0)) {
+        if ($this->options['immediate'] && ($this->pcapFFI->set_immediate_mode($pcap, $this->options['immediate']) < 0)) {
             $this->fail("Cannot set immediate mode {$this->options['immediate']} on device {$this->dev}");
         }
 
-        if (self::$pcapFFI->set_timeout($pcap, $this->options['timeout']) < 0) {
+        if ($this->pcapFFI->set_timeout($pcap, $this->options['timeout']) < 0) {
             $this->fail("Cannot set timeout {$this->options['timeout']}ms on device {$this->dev}");
         }
 
-        if ($this->options['non_blocking'] && (self::$pcapFFI->setnonblock($pcap, $this->options['non_blocking']) < 0)) {
-            $this->fail("Cannot set blocking option on device {$this->dev}: " . self::$pcapFFI->getLastError());
+        if ($this->options['non_blocking'] && ($this->pcapFFI->setnonblock($pcap, $this->options['non_blocking']) < 0)) {
+            $this->fail("Cannot set blocking option on device {$this->dev}: " . $this->pcapFFI->getLastError());
         }
 
-        if (self::$pcapFFI->activate($pcap) < 0) {
-            $this->fail("Cannot activate live capture on device {$this->dev}: " . self::$pcapFFI->getLastError());
+        if ($this->pcapFFI->activate($pcap) < 0) {
+            $this->fail("Cannot activate live capture on device {$this->dev}: " . $this->pcapFFI->getLastError());
             $this->closeSession();
 
             return null;
         }
 
-        if (strlen($this->options['filter']) && (self::$pcapFFI->compile_setfilter($pcap, $this->options['filter']) < 0)) {
-            $this->fail("Cannot set filter option on device {$this->dev}: " . self::$pcapFFI->getLastError());
+        if (strlen($this->options['filter']) && ($this->pcapFFI->compile_setfilter($pcap, $this->options['filter']) < 0)) {
+            $this->fail("Cannot set filter option on device {$this->dev}: " . $this->pcapFFI->getLastError());
         }
 
         $this->pcap = $pcap;
@@ -117,7 +140,8 @@ class StreamWrapper
         return $this->pcap;
     }
 
-    public function stream_read(int $count): string {
+    public function stream_read(int $count): string
+    {
         if (is_null($this->pcap) && is_null($this->activateSession())) {
             return '';
         }
@@ -128,7 +152,7 @@ class StreamWrapper
 
         while ($count) {
             if (!$length) {
-                $bytes = self::$pcapFFI->next_ex($this->pcap);
+                $bytes = $this->pcapFFI->next_ex($this->pcap);
                 $length = strlen($bytes);
 
                 if (!$length) {
@@ -146,11 +170,8 @@ class StreamWrapper
         return $ret;
     }
 
-    public function stream_open(string $path, string $mode, ?int $options, ?string &$opened_path): bool {
-        if (is_null(self::$pcapFFI)) {
-            self::$pcapFFI = new PcapFFI();
-        }
-
+    public function stream_open(string $path, string $mode, ?int $options, ?string &$opened_path): bool
+    {
         if (extension_loaded('sockets')) {
             $raw = @\socket_create(AF_INET, SOCK_RAW, SOL_TCP);
 
@@ -167,6 +188,14 @@ class StreamWrapper
 
         if (!$url) {
             $this->fail('Cannot parse pcap path');
+
+            return false;
+        }
+
+        if (!isset($url['host'])) {
+            $this->fail('Missing device name!');
+
+            return false;
         }
 
         if (!isset($url['scheme']) || ($url['scheme'] !== 'pcap')) {
@@ -182,13 +211,14 @@ class StreamWrapper
         }
 
         $this->dev = $url['host'];
+
         $this->mode = $mode;
 
         $found = false;
-        $devs = self::$pcapFFI->findalldevs();
+        $devs = $this->pcapFFI->findalldevs();
 
         if (is_null($devs)) {
-            $this->fail('Cannot enumerate network devices: ' . self::$pcapFFI->getLastError());
+            $this->fail('Cannot enumerate network devices: ' . $this->pcapFFI->getLastError());
 
             return false;
         }
@@ -207,10 +237,15 @@ class StreamWrapper
         return true;
     }
 
-    public function stream_close(): void {
+    public function stream_close(): void
+    {
     }
 
-    public function stream_cast(int $cast_as) {
+    /**
+     * @return resource|false
+     */
+    public function stream_cast(int $cast_as)
+    {
         if (is_null($this->pcap) && is_null($this->activateSession())) {
             return false;
         }
@@ -218,7 +253,11 @@ class StreamWrapper
         switch ($cast_as) {
             case STREAM_CAST_FOR_SELECT:
             case STREAM_CAST_AS_STREAM:
-                $fd = self::$pcapFFI->get_selectable_fd($this->pcap);
+                if (!is_null($this->fp)) {
+                    return $this->fp;
+                }
+
+                $fd = $this->pcapFFI->get_selectable_fd($this->pcap);
 
                 if ($fd < 0) {
                     return false;
@@ -230,8 +269,14 @@ class StreamWrapper
                     return false;
                 }
 
-                $this->fd = $fd;
                 $this->fp = $fp;
+
+                stream_set_blocking($this->fp, $this->options['non_blocking'] == 0);
+                stream_set_timeout($this->fp, (int) floor($this->options['timeout'] / 1000), ($this->options['timeout'] % 1000) * 1000);
+
+                if ($this->options['immediate'] === 1) {
+                    stream_set_read_buffer($this->fp, 0);
+                }
 
                 return $this->fp;
         }
@@ -239,11 +284,13 @@ class StreamWrapper
         return false;
     }
 
-    public function stream_eof(): bool {
+    public function stream_eof(): bool
+    {
         return false;
     }
 
-    private function fail(string $message): void {
+    private function fail(string $message): void
+    {
        trigger_error($message, E_USER_WARNING);
     }
 }

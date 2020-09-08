@@ -143,5 +143,25 @@
     <OverriddenMethodAccess errorLevel="info" />
     <InaccessibleProperty errorLevel="info" />
 
+    <UndefinedMethod>
+      <errorLevel type="suppress">
+        <referencedMethod name="FFI::pcap_findalldevs" />
+        <referencedMethod name="FFI::pcap_freealldevs" />
+        <referencedMethod name="FFI::pcap_create" />
+        <referencedMethod name="FFI::pcap_set_snaplen" />
+        <referencedMethod name="FFI::pcap_set_promisc" />
+        <referencedMethod name="FFI::pcap_set_immediate_mode" />
+        <referencedMethod name="FFI::pcap_set_timeout" />
+        <referencedMethod name="FFI::pcap_setnonblock" />
+        <referencedMethod name="FFI::pcap_activate" />
+        <referencedMethod name="FFI::pcap_get_selectable_fd" />
+        <referencedMethod name="FFI::pcap_next_ex" />
+        <referencedMethod name="FFI::pcap_compile" />
+        <referencedMethod name="FFI::pcap_setfilter" />
+        <referencedMethod name="FFI::pcap_close" />
+        <referencedMethod name="FFI::pcap_geterr" />
+      </errorLevel>
+    </UndefinedMethod>
+
   </issueHandlers>
 </psalm>

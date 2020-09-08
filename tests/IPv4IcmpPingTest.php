@@ -13,19 +13,21 @@ class IPv4IcmpPingTest extends \PHPUnit\Framework\TestCase {
         $this->resolveHostname();
 
         $context = stream_context_create([
-          'pcap' => [
-            'snaplen'   => 2048,
-            'immediate' => true,
-            'timeout'   => 0.100,
-            'filter'    => 'host ' . $this->ip,
-          ],
+            'pcap' => [
+                'snaplen'   => 2048,
+                'immediate' => true,
+                'timeout'   => 0.100,
+                'filter'    => 'host ' . $this->ip,
+            ],
         ]);
 
         $fp = fopen('pcap://any', 'r', false, $context);
+
         $this->assertIsResource($fp);
 
         // Trigger capture activation, expect nothing to read
         $body = fread($fp, 16);
+
         $this->assertIsString($body);
         $this->assertEmpty($body);
 
@@ -44,43 +46,49 @@ class IPv4IcmpPingTest extends \PHPUnit\Framework\TestCase {
         $startedAt = time();
 
         while (($requests < self::COUNT) || ($replies < self::COUNT)) {
-          $read = $captures;
+            $read = $captures;
 
-          if (stream_select($read, $write, $except, 0, 100000)) {
-            foreach ($read as $r) {
-              while ($_header = fread($r, 16)) {
-                $header = unpack('LtsSec/LtsUsec/LcapLen/Llen', $_header);
-                $frame = parseLinuxSLLFrame(fread($r, $header['capLen']));
+            if (stream_select($read, $write, $except, 0, 100000)) {
+                foreach ($read as $r) {
+                    while ($_header = fread($r, 16)) {
+                        $header = unpack('LtsSec/LtsUsec/LcapLen/Llen', $_header);
+                        $frame = parseLinuxSLLFrame(fread($r, $header['capLen']));
 
-                if ($frame['packetType'] === 0) {
-                  $remoteMac = $frame['address'];
-                }
+                        if ($frame['packetType'] === 0) {
+                            $remoteMac = $frame['address'];
+                        }
 
-                if ($frame['packetType'] === 4) {
-                  $localMac = $frame['address'];
-                }
+                        if ($frame['packetType'] === 4) {
+                            $localMac = $frame['address'];
+                        }
 
-                if ($frame['etherType'] === 8) { // IPv4
-                  $ipv4 = parseIPv4Frame($frame['data']);
+                        if ($frame['etherType'] === 8) { // IPv4
+                            $ipv4 = parseIPv4Frame($frame['data']);
 
-                  if ($ipv4['protocol'] === 1) { // ICMP
-                    $icmp = parseICMPFrame($ipv4['data']);
+                            if ($ipv4['protocol'] === 1) { // ICMP
+                                $icmp = parseICMPFrame($ipv4['data']);
 
-                    if($icmp['type'] === 8) {
-                      echo "Ping {$ipv4['srcAddr']} -> {$ipv4['dstAddr']}\n";
-                      $requests++;
+                                if($icmp['type'] === 8) {
+                                    echo "Ping {$ipv4['srcAddr']} -> {$ipv4['dstAddr']}\n";
+                                    $requests++;
+                                }
+
+                                if($icmp['type'] === 0) {
+                                    echo "Pong {$ipv4['srcAddr']} -> {$ipv4['dstAddr']}\n";
+                                    $replies++;
+                                }
+                            }
+                        }
                     }
-
-                    if($icmp['type'] === 0) {
-                      echo "Pong {$ipv4['srcAddr']} -> {$ipv4['dstAddr']}\n";
-                      $replies++;
-                    }
-                  }
                 }
-              }
             }
-          }
         }
+
+        $this->assertEquals(self::COUNT, $requests);
+        $this->assertEquals(self::COUNT, $replies);
+
+        $this->assertEquals($localMac, filter_var($localMac, FILTER_VALIDATE_MAC));
+        $this->assertEquals($remoteMac, filter_var($remoteMac, FILTER_VALIDATE_MAC));
     }
 
     private function resolveHostname(): void {

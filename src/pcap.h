@@ -158,3 +158,4 @@ int pcap_get_selectable_fd(pcap_t *p);
 int pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header, const u_char **pkt_data);
 int pcap_compile(pcap_t *p, struct bpf_program *fp, const char *str, int optimize, bpf_u_int32 netmask);
 int pcap_setfilter(pcap_t *p, struct bpf_program *fp);
+void pcap_close(pcap_t *p);

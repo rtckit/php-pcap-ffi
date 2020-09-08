@@ -6,23 +6,20 @@ RUN_PHP_CMD=${RUN_CMD} php -d memory_limit=-1
 image:
 	docker build -t ${REPOSITORY} .
 
-local-image:
-	docker build -v `pwd`:/usr/src/php-pcap-ffi:rw -t ${REPOSITORY} .
-
 run: image
 	${RUN_CMD}
 
 test: image
 	${RUN_PHP_CMD} -d memory_limit=-1 ./vendor/bin/phpunit --debug
 
-cover:
+cover: image
 	rm -rf reports/coverage
 	${RUN_PHP_CMD} ./vendor/bin/phpunit --coverage-text --coverage-html=reports/coverage
 
-stan:
+stan: image
 	${RUN_PHP_CMD} ./vendor/bin/phpstan analyse -n -vvv --ansi --level=max src
 
-psalm:
+psalm: image
 	${RUN_PHP_CMD} ./vendor/bin/psalm --show-info=true
 
 check: stan psalm
