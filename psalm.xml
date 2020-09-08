@@ -145,6 +145,7 @@
 
     <UndefinedMethod>
       <errorLevel type="suppress">
+        <referencedMethod name="FFI::pcap_lib_version" />
         <referencedMethod name="FFI::pcap_findalldevs" />
         <referencedMethod name="FFI::pcap_freealldevs" />
         <referencedMethod name="FFI::pcap_create" />
@@ -155,6 +156,7 @@
         <referencedMethod name="FFI::pcap_setnonblock" />
         <referencedMethod name="FFI::pcap_activate" />
         <referencedMethod name="FFI::pcap_get_selectable_fd" />
+        <referencedMethod name="FFI::pcap_inject" />
         <referencedMethod name="FFI::pcap_next_ex" />
         <referencedMethod name="FFI::pcap_compile" />
         <referencedMethod name="FFI::pcap_setfilter" />

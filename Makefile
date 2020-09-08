@@ -1,6 +1,6 @@
 # This file is intended solely to facilitate development specific processes
 REPOSITORY=rtckit/php-pcap-ffi-dev
-RUN_CMD=docker run --name php-pcap-ffi-dev --rm -it  -v `pwd`/reports:/usr/src/php-pcap-ffi/reports:rw ${REPOSITORY}
+RUN_CMD=docker run --name php-pcap-ffi-dev --rm -it -v `pwd`/reports:/usr/src/php-pcap-ffi/reports:rw ${REPOSITORY}
 RUN_PHP_CMD=${RUN_CMD} php -d memory_limit=-1
 
 image:
