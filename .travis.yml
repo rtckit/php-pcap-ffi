@@ -17,4 +17,10 @@ php:
 env:
   - REPORT_EXIT_STATUS=1 NO_INTERACTION=1
 
-script: ./vendor/bin/phpstan analyse -n -vvv --ansi --level=max src && ./vendor/bin/psalm --show-info=true && ./vendor/bin/phpunit --coverage-text --debug
+install:
+  - composer install
+
+script:
+  - ./vendor/bin/phpstan analyse -n -vvv --ansi --level=max src
+  - ./vendor/bin/psalm --show-info=true
+  - ./vendor/bin/phpunit --coverage-text --debug
