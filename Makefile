@@ -25,5 +25,7 @@ buster:
 buster-test: buster
 	${RUN_CMD}:buster php -d memory_limit=-1 -d memory_limit=-1 ./vendor/bin/phpunit --debug
 
+ci: stan psalm test buster-test
+
 clean:
 	rm -rf `cat .gitignore`

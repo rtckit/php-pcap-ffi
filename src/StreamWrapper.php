@@ -55,8 +55,6 @@ class StreamWrapper
         if (preg_match('/libpcap version ([\d\.]+)(.*)/', $version, $matches) === 1) {
             if (!version_compare($matches[1], self::MIN_LIBPCAP_VERSION, '>=')) {
                 $this->fail('Please upgrade libpcap to a higher version (>= ' . self::MIN_LIBPCAP_VERSION . ')');
-
-                return false;
             }
         } else {
             $this->fail('Cannot reliably determine libpcap version');
