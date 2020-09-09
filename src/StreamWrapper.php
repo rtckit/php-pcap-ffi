@@ -265,6 +265,7 @@ class StreamWrapper
 
     public function stream_close(): void
     {
+        $this->closeSession();
     }
 
     /**
