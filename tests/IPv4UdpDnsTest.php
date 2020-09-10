@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace RTCKit\Pcap\Stream\FFI;
 
 class IPv4UdpDnsTest extends \PHPUnit\Framework\TestCase {

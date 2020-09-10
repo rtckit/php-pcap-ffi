@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace RTCKit\Pcap\Stream\FFI;
 
 class IPv4TcpHttpTest extends \PHPUnit\Framework\TestCase {
