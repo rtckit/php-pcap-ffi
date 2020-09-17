@@ -1,3 +1,6 @@
+#define FFI_SCOPE "_RTCKIT_PCAP_FFI_"
+#define FFI_LIB   "libpcap.so.1"
+
 typedef unsigned long int time_t;
 typedef unsigned long int suseconds_t;
 
