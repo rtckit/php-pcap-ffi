@@ -2,11 +2,11 @@
 
 Stream driven PHP packet capture library, leveraging libpcap via FFI.
 
-[![Build Status](https://travis-ci.com/rtckit/php-pcap-ffi.svg?branch=master)](https://travis-ci.com/rtckit/php-pcap-ffi) ![Version](https://img.shields.io/badge/version-v0.6.2-green) ![License](https://img.shields.io/badge/license-MIT-blue)
+[![Build Status](https://travis-ci.com/rtckit/php-pcap-ffi.svg?branch=master)](https://travis-ci.com/rtckit/php-pcap-ffi) ![Version](https://img.shields.io/badge/version-v0.6.4-green) ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## Pcap Extension
 
-Whenever possible, you should use the native [pcap PHP extension](https://github.com/rtckit/php-pcap-ext), this library is provided as an alternative to it for select/edge cases. Otherwise, the FFI based packet capture library is fully compatible with the `pcap` extension. As a result, all changes applied to the extension are reflected here too, and the library version will always match its extension counterpart.
+Whenever possible (or if using an older version of PHP), you should use the native [pcap PHP extension](https://github.com/rtckit/php-pcap-ext), this library is provided as an alternative to it for select/edge cases. Otherwise, the FFI based packet capture library is fully compatible with the `pcap` extension. As a result, all changes applied to the extension are reflected here too, and the library version will always match its extension counterpart.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ The recommended way to install this library is [through Composer](https://getcom
 This will install the latest supported version:
 
 ```sh
-composer require rtckit/pcap-ffi:^0.6.2
+composer require rtckit/pcap-ffi:^0.6.4
 ```
 
 ## Tests
