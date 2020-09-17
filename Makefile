@@ -19,13 +19,16 @@ stan: image
 psalm: image
 	${RUN_PHP_CMD} ./vendor/bin/psalm --show-info=true
 
+test-ffi-scope: image
+	${RUN_PHP_CMD} -d ffi.preload=./src/pcap.h -d memory_limit=-1 ./vendor/bin/phpunit --debug
+
 buster:
 	docker build -t ${REPOSITORY}:buster -f Dockerfile.buster .
 
 buster-test: buster
 	${RUN_CMD}:buster php -d memory_limit=-1 -d memory_limit=-1 ./vendor/bin/phpunit --debug
 
-ci: stan psalm test buster-test
+ci: stan psalm test-ffi-scope test buster-test
 
 clean:
 	rm -rf `cat .gitignore`

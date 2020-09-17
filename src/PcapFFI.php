@@ -6,7 +6,7 @@ namespace RTCKit\Pcap\Stream\FFI;
 
 use FFI;
 use FFI\CData;
-use FFI\Exception;
+use FFI\Exception as FFIException;
 
 /**
  * FFI/libpcap class
@@ -15,13 +15,13 @@ class PcapFFI
 {
     public const LIBPCAP_NAME = 'libpcap.so.1';
 
-    static private $ffi = NULL;
+    static private FFI $ffi;
 
     private ?string $error = null;
 
     public function __construct()
     {
-        if (self::$ffi) {
+        if (isset(self::$ffi)) {
             return;
         }
 
@@ -31,20 +31,17 @@ class PcapFFI
             $code = file_get_contents(__DIR__ . '/pcap.h');
 
             if ($code === false) {
-                throw new Exception('Cannot load pcap C definitions');
+                throw new FFIException('Cannot load pcap C definitions');
             }
             self::$ffi = FFI::cdef($code, $lib);
         } else {
             try {
                 // Try preload
-                self::$ffi = \FFI::scope("_RTCKIT_PCAP_FFI_");
-            } catch (\FFI\Exception $e) {
+                self::$ffi = FFI::scope("_RTCKIT_PCAP_FFI_");
+            } catch (FFIException $e) {
                 // Try direct load
-                self::$ffi = \FFI::load(__DIR__ . '/pcap.h');
+                self::$ffi = FFI::load(__DIR__ . '/pcap.h');
             }
-        }
-        if (!self::$ffi) {
-            throw new \RuntimeException("FFI parse fails");
         }
     }
 
