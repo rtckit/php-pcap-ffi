@@ -2,9 +2,11 @@ name: Test Suite
 on: [push, pull_request]
 jobs:
   test-buster:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-focal-fossa
     steps:
     - uses: actions/checkout@v2
+    - name: Install libpcap
+      run: sudo apt-get update && sudo apt-get install -y libpcap-dev
     - name: Install dependencies
       run: composer install --no-scripts --no-suggest --no-interaction --prefer-dist --optimize-autoloader
     - name: PHPStan
@@ -12,4 +14,4 @@ jobs:
     - name: Psalm
       run: php -d memory_limit=-1 ./vendor/bin/psalm --show-info=true
     - name: PHPUnit
-      run: LIBPCAP_NAME=libpcap.so.1.8.1 php -d memory_limit=-1 ./vendor/bin/phpunit --debug
+      run: sudo LIBPCAP_NAME=libpcap.so.0.8 php -d memory_limit=-1 ./vendor/bin/phpunit --debug
