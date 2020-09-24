@@ -2,10 +2,14 @@ name: Test Suite
 on: [push, pull_request]
 jobs:
   test-buster:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-buster
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
       run: composer install --no-scripts --no-suggest --no-interaction --prefer-dist --optimize-autoloader
     - name: PHPStan
       run: php -d memory_limit=-1 ./vendor/bin/phpstan analyse -n -vvv --ansi --level=max src
+    - name: Psalm
+      run: php -d memory_limit=-1 ./vendor/bin/psalm --show-info=true
+    - name: PHPUnit
+      run: LIBPCAP_NAME=libpcap.so.1.8.1 php -d memory_limit=-1 ./vendor/bin/phpunit --debug
