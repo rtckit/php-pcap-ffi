@@ -1,7 +1,7 @@
-name: Test Suite
+name: Static Analysis
 on: [push, pull_request]
 jobs:
-  test-ubuntu-focal-fossa:
+  ubuntu-focal-fossa:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
@@ -13,5 +13,6 @@ jobs:
       run: php -d memory_limit=-1 ./vendor/bin/phpstan analyse -n -vvv --ansi --level=max src
     - name: Psalm
       run: php -d memory_limit=-1 ./vendor/bin/psalm --show-info=true
-    - name: PHPUnit
-      run: sudo LIBPCAP_NAME=libpcap.so.0.8 php -d memory_limit=-1 ./vendor/bin/phpunit --debug
+    # The provided containers are not  flexible enough to support the test suite
+    # - name: PHPUnit
+    #   run: sudo LIBPCAP_NAME=libpcap.so.0.8 php -d memory_limit=-1 ./vendor/bin/phpunit --debug
