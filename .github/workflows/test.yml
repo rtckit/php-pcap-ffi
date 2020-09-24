@@ -2,7 +2,7 @@ name: Test Suite
 on: [push, pull_request]
 jobs:
   test-buster:
-    runs-on: ubuntu-buster
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
