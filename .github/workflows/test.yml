@@ -1,8 +1,8 @@
 name: Test Suite
 on: [push, pull_request]
 jobs:
-  test-buster:
-    runs-on: ubuntu-focal-fossa
+  test-ubuntu-focal-fossa:
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: Install libpcap
