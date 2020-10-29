@@ -2,8 +2,5 @@ parameters:
   ignoreErrors:
     - '#Call to an undefined method FFI::pcap_#'
     - '#Cannot access offset 0 on FFI\\CData#'
-    - '#\$pcap of method RTCKit\\Pcap\\Stream\\FFI\\PcapFFI::inject\(\) expects FFI\\CData, FFI\\CData\|null given.#'
-    - '#\$pcap of method RTCKit\\Pcap\\Stream\\FFI\\PcapFFI::next_ex\(\) expects FFI\\CData, FFI\\CData\|null given.#'
-    - '#\$pcap of method RTCKit\\Pcap\\Stream\\FFI\\PcapFFI::get_selectable_fd\(\) expects FFI\\CData, FFI\\CData\|null given.#'
 includes:
   - vendor/phpstan/phpstan/conf/bleedingEdge.neon
