@@ -26,6 +26,7 @@ class StreamWrapper
      * - https://bugs.php.net/bug.php?id=71518
      *
      * @var ?resource
+     * @psalm-var resource|closed-resource|null
      */
     private $fp = null;
 
@@ -68,7 +69,7 @@ class StreamWrapper
             $this->pcap = null;
         }
 
-        if (!is_null($this->fp)) {
+        if (is_resource($this->fp)) {
             fclose($this->fp);
             $this->fp = null;
         }
@@ -146,14 +147,12 @@ class StreamWrapper
             $this->fail("Cannot set filter option on device {$this->dev}: " . $this->pcapFFI->getLastError());
         }
 
-        $this->pcap = $pcap;
-
-        return $this->pcap;
+        return $pcap;
     }
 
     public function stream_write(string $data): int
     {
-        if (is_null($this->pcap) && is_null($this->activateSession())) {
+        if (is_null($this->pcap) && (($this->pcap = $this->activateSession()) === null)) {
             return -1;
         }
 
@@ -168,7 +167,7 @@ class StreamWrapper
 
     public function stream_read(int $count): string
     {
-        if (is_null($this->pcap) && is_null($this->activateSession())) {
+        if (is_null($this->pcap) && (($this->pcap = $this->activateSession()) === null)) {
             return '';
         }
 
@@ -273,14 +272,14 @@ class StreamWrapper
      */
     public function stream_cast(int $cast_as)
     {
-        if (is_null($this->pcap) && is_null($this->activateSession())) {
+        if (is_null($this->pcap) && (($this->pcap = $this->activateSession()) === null)) {
             return false;
         }
 
         switch ($cast_as) {
             case STREAM_CAST_FOR_SELECT:
             case STREAM_CAST_AS_STREAM:
-                if (!is_null($this->fp)) {
+                if (is_resource($this->fp)) {
                     return $this->fp;
                 }
 
@@ -305,6 +304,7 @@ class StreamWrapper
                     stream_set_read_buffer($this->fp, 0);
                 }
 
+                /** @var resource */
                 return $this->fp;
         }
 

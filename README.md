@@ -2,7 +2,10 @@
 
 Stream driven PHP packet capture library, leveraging libpcap via FFI.
 
-[![Build Status](https://travis-ci.com/rtckit/php-pcap-ffi.svg?branch=master)](https://travis-ci.com/rtckit/php-pcap-ffi) ![Version](https://img.shields.io/badge/version-v0.6.4-green) ![License](https://img.shields.io/badge/license-MIT-blue)
+[![Build Status](https://travis-ci.com/rtckit/php-pcap-ffi.svg?branch=master)](https://travis-ci.com/rtckit/php-pcap-ffi)
+[![Latest Stable Version](https://poser.pugx.org/rtckit/pcap-ffi/v/stable.png)](https://packagist.org/packages/rtckit/pcap-ffi)
+[![Maintainability](https://api.codeclimate.com/v1/badges/e8c2dca80074553ba561/maintainability)](https://codeclimate.com/github/rtckit/php-pcap-ffi/maintainability)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ## Pcap Extension
 
@@ -23,7 +26,7 @@ The recommended way to install this library is [through Composer](https://getcom
 This will install the latest supported version:
 
 ```sh
-composer require rtckit/pcap-ffi:^0.6.4
+composer require rtckit/pcap-ffi:^0.6.5
 ```
 
 ## Tests

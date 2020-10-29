@@ -1,4 +1,4 @@
-FROM composer:1.10.10 as composer
+FROM composer:1.10.16 as composer
 
 WORKDIR /usr/src/php-pcap-ffi
 
